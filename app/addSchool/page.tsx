@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useRouter } from 'next/navigation';
+import Image from 'next/image';
 import Navbar from '@/components/Navbar';
 import { Upload } from 'lucide-react';
 import toast, { Toaster } from 'react-hot-toast';
@@ -214,8 +215,14 @@ export default function AddSchool() {
                   />
                 </label>
                 {imagePreview && (
-                  <div className="w-16 h-16 rounded-lg overflow-hidden border">
-                    <img src={imagePreview} alt="Preview" className="w-full h-full object-cover" />
+                  <div className="w-16 h-16 rounded-lg overflow-hidden border relative">
+                    <Image
+                      src={imagePreview}
+                      alt="Preview"
+                      fill
+                      className="object-cover"
+                      unoptimized
+                    />
                   </div>
                 )}
               </div>

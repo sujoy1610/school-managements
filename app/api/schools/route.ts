@@ -1,10 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
 import connectDB from '../../../lib/db';
+import type { ResultSetHeader, RowDataPacket } from 'mysql2'; // ✅ import types
 
 export async function GET() {
   try {
     const connection = await connectDB();
-    const [rows] = await connection.execute(
+    const [rows] = await connection.execute<RowDataPacket[]>(
       'SELECT * FROM schools ORDER BY created_at DESC'
     );
     
@@ -51,7 +52,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Insert into database
-    const [result]: any = await connection.execute(
+    const [result] = await connection.execute<ResultSetHeader>(
       'INSERT INTO schools (name, address, city, state, contact, email_id, image) VALUES (?, ?, ?, ?, ?, ?, ?)',
       [name, address, city, state, contact, email_id, image || null]
     );
