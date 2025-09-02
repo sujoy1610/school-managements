@@ -9,17 +9,18 @@ const connectDB = async (): Promise<mysql.Connection> => {
 
   try {
     connection = await mysql.createConnection({
-      host: process.env.DB_HOST || 'localhost',
-      user: process.env.DB_USER || 'root',
-      password: process.env.DB_PASSWORD || 'Sujoy@2000',
-      database: process.env.DB_NAME || 'schoolsdb',
+      host: process.env.MYSQLHOST,
+      user: process.env.MYSQLUSER,
+      password: process.env.MYSQLPASSWORD,
+      database: process.env.MYSQLDATABASE,
+      port: Number(process.env.MYSQLPORT),
       charset: 'utf8mb4',
     });
 
-    console.log('✅ Connected to MySQL Database (schoolsdb)');
+    console.log('✅ Connected to Railway MySQL Database');
     return connection;
   } catch (error) {
-    console.error(' Database connection failed:', error);
+    console.error('❌ Database connection failed:', error);
     throw error;
   }
 };
