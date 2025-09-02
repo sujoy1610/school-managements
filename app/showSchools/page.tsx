@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import Navbar from '@/components/Navbar';
@@ -25,15 +25,12 @@ function SchoolCard({ school }: { school: School }) {
         <div className="flex-shrink-0">
           {school.image ? (
             <Image
-              src={
-                school.image.startsWith('/')
-                  ? school.image
-                  : `/schoolImages/${school.image}`
-              }
+              src={school.image}
               alt={`${school.name} logo`}
               width={80}
               height={80}
               className="rounded-xl object-cover border border-gray-300"
+              unoptimized={true} // avoids domain config issues in dev
             />
           ) : (
             <div className="w-20 h-20 bg-gradient-to-br from-blue-100 to-blue-200 rounded-xl flex items-center justify-center border border-gray-300">
@@ -94,7 +91,6 @@ export default function ShowSchoolsPage() {
   const [schools, setSchools] = useState<School[]>([]);
   const [filteredSchools, setFilteredSchools] = useState<School[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
   const [stateFilter, setStateFilter] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
@@ -108,11 +104,6 @@ export default function ShowSchoolsPage() {
     fetchSchools();
   }, []);
 
-  useEffect(() => {
-    filterSchools();
-    setCurrentPage(1); // reset to first page when filters change
-  }, [schools, searchTerm, stateFilter]);
-
   const fetchSchools = async () => {
     try {
       setLoading(true);
@@ -120,15 +111,14 @@ export default function ShowSchoolsPage() {
       if (!res.ok) throw new Error('Failed to fetch schools');
       const data = await res.json();
       setSchools(data);
-      setError('');
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'An error occurred');
+      console.error('Error fetching schools:', err);
     } finally {
       setLoading(false);
     }
   };
 
-  const filterSchools = () => {
+  const filterSchools = useCallback(() => {
     let filtered = schools;
 
     if (searchTerm.trim()) {
@@ -146,7 +136,12 @@ export default function ShowSchoolsPage() {
     }
 
     setFilteredSchools(filtered);
-  };
+  }, [schools, searchTerm, stateFilter]);
+
+  useEffect(() => {
+    filterSchools();
+    setCurrentPage(1);
+  }, [filterSchools]);
 
   // Pagination logic
   const totalPages = Math.ceil(filteredSchools.length / schoolsPerPage);
